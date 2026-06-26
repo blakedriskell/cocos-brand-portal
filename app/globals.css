@@ -1,16 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F8F1E7;
-  --foreground: #3A2416;
+  --background: #F7F1E7;   /* Coconut Cream */
+  --foreground: #4A2E24;   /* Espresso Brown */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-playfair);
+  /* Fraunces — boutique serif display / headline face */
+  --font-display: var(--font-fraunces);
+  /* Nunito Sans — UI, body, labels, buttons */
+  --font-sans: var(--font-nunito);
 }
 
 html {
@@ -20,10 +22,22 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-nunito), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 [id] {
-  scroll-margin-top: 72px;
+  scroll-margin-top: 90px;
+}
+
+/* ─── Brand ticker ──────────────────────────────────────────────────────────── */
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes film-reel {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
 }
