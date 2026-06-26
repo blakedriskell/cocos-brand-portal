@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ArrowRight, Menu } from "lucide-react";
@@ -215,28 +215,40 @@ function Header() {
 // ─── 2 · Hero ─────────────────────────────────────────────────────────────────
 
 function Hero() {
+  // Desktop carousel slides
   const slides = [
-    { src: "/cocos/cocos-coffee-trailer-mockup-navy-coral.png",          alt: "Coco's Coffee trailer — navy & coral" },
-    { src: "/cocos/cocos-cup-mockup-coral-mascot-palm.png",              alt: "Coco's Coffee cup system" },
-    { src: "/cocos/cocos-matcha-cups-sky-mockup-primary-logo.png",       alt: "Coco's Coffee iced matcha cups — sunny beverage application" },
-    { src: "/cocos/cocos-menu-trifold-navy-coral.png",                   alt: "Coco's Coffee menu trifold" },
-    { src: "/cocos/cocos-loyalty-card-flatlay-navy.png",                 alt: "Coco's Coffee loyalty card" },
-    { src: "/cocos/cocos-bag-cup-mockup-natural-coral.png",              alt: "Coco's Coffee bag and cup" },
+    { src: "/cocos/cocos-coffee-trailer-mockup-navy-coral.png",        alt: "Coco's Coffee trailer — navy & coral" },
+    { src: "/cocos/cocos-cup-mockup-coral-mascot-palm.png",            alt: "Coco's Coffee cup system" },
+    { src: "/cocos/cocos-matcha-cups-sky-mockup-primary-logo.png",     alt: "Coco's Coffee iced matcha cups" },
+    { src: "/cocos/cocos-menu-trifold-navy-coral.png",                 alt: "Coco's Coffee menu trifold" },
+    { src: "/cocos/cocos-loyalty-card-flatlay-navy.png",               alt: "Coco's Coffee loyalty card" },
+    { src: "/cocos/cocos-bag-cup-mockup-natural-coral.png",            alt: "Coco's Coffee bag and cup" },
   ];
-  const n = slides.length;
+
+  // Mobile slideshow — one card, no side cards, curated assets
+  const mobileSlides: Array<{ src: string; alt: string; fit: "cover" | "contain" }> = [
+    { src: "/cocos/cocos-coffee-trailer-mockup-navy-coral.png",       alt: "Coco's Coffee trailer — brand identity",      fit: "cover" },
+    { src: "/cocos/cocos-cup-mockup-coral-mascot-palm.png",           alt: "Coco's Coffee cup system",                    fit: "cover" },
+    { src: "/cocos/cocos-bag-cup-brand-mockup-navy-coral.png",        alt: "Coco's Coffee bag and cup brand mockup",      fit: "cover" },
+    { src: "/cocos/cocos-menu-trifold-navy-coral.png",                alt: "Coco's Coffee menu trifold",                 fit: "contain" },
+    { src: "/cocos/cocos-matcha-cups-sky-mockup-primary-logo.png",    alt: "Coco's Coffee iced matcha — sky lifestyle",   fit: "cover" },
+    { src: "/cocos/cocos-sticker-pack-cafe-scene-navy-coral.png",     alt: "Coco's Coffee sticker pack — café scene",     fit: "contain" },
+  ];
+
+  const n = slides.length; // 6 — same length for both arrays
   const [active, setActive] = useState(0);
   const prev = (active - 1 + n) % n;
   const next = (active + 1) % n;
 
   useEffect(() => {
-    const id = setInterval(() => setActive(i => (i + 1) % n), 2500);
+    const id = setInterval(() => setActive(i => (i + 1) % n), 2800);
     return () => clearInterval(id);
   }, [n]);
 
   return (
     <section
-      className="relative flex flex-col items-center px-5 md:px-8 pt-7 pb-3 overflow-hidden"
-      style={{ height: "calc(100vh - 88px)", background: "#F47A5A" }}
+      className="relative flex flex-col items-center px-5 md:px-8 pt-7 pb-8 md:pb-3 overflow-hidden md:h-[calc(100vh-88px)]"
+      style={{ background: "#F47A5A" }}
     >
       {/* Background: ghosted mascot watermark */}
       <div
@@ -266,7 +278,7 @@ function Hero() {
         aria-hidden
       />
 
-      {/* Sparkles sticker — upper-right accent */}
+      {/* Sparkles sticker — upper-right accent, desktop only */}
       <motion.div
         className="hidden md:block absolute top-[15%] right-[7%] w-[80px] h-[80px] pointer-events-none select-none z-10"
         initial={{ opacity: 0, rotate: -8, y: 10 }}
@@ -279,13 +291,13 @@ function Hero() {
 
       {/* Text block */}
       <motion.div
-        className="relative z-10 w-full max-w-[560px] mx-auto text-center shrink-0 mb-5"
+        className="relative z-10 w-full max-w-[560px] mx-auto text-center shrink-0 mb-6"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.48, ease }}
       >
         <span
-          className="block font-sans text-[10px] font-bold tracking-[0.24em] uppercase text-[#223A70] mb-2.5"
+          className="block font-sans text-[10px] font-bold tracking-[0.16em] md:tracking-[0.24em] uppercase text-[#223A70] mb-2.5"
           style={{ opacity: 0.72 }}
         >
           Brand Identity · Coffee Trailer · Tampa, FL
@@ -297,7 +309,7 @@ function Hero() {
           Coco&rsquo;s Coffee
         </h1>
         <p
-          className="font-sans text-[13px] text-[#223A70] leading-[1.55] max-w-[420px] mx-auto mb-5"
+          className="font-sans text-[13px] text-[#223A70] leading-[1.55] max-w-[320px] md:max-w-[420px] mx-auto mb-5"
           style={{ opacity: 0.78 }}
         >
           A warm, playful identity built for good coffee, sweet moments, and repeat visits.
@@ -324,9 +336,62 @@ function Hero() {
 
       {/* Visual composition stage */}
       <div className="relative z-10 w-full flex-1 min-h-0 flex items-end justify-center pb-3">
-        <div className="w-full max-w-6xl mx-auto flex items-end justify-center gap-5 px-4">
 
-          {/* Left — prev slide, floating on coral */}
+        {/* ── Mobile: animated one-card slideshow, no side cards ──────────── */}
+        <div className="md:hidden w-full shrink-0">
+
+          {/* Single card — fills width, fades between slides */}
+          <div
+            className="relative w-full rounded-3xl overflow-hidden bg-[#223A70]"
+            style={{
+              height: 380,
+              boxShadow: "0 24px 64px rgba(34,58,112,0.45), 0 8px 24px rgba(34,58,112,0.24)",
+            }}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={active}
+                className="absolute inset-0"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <Image
+                  src={mobileSlides[active].src}
+                  alt={mobileSlides[active].alt}
+                  fill
+                  className={
+                    mobileSlides[active].fit === "cover" ? "object-cover" : "object-contain"
+                  }
+                  sizes="100vw"
+                  priority={active === 0}
+                />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Mobile slide indicators */}
+          <div className="flex items-center justify-center gap-1.5 mt-3">
+            {mobileSlides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActive(i)}
+                aria-label={`Slide ${i + 1}`}
+                className={`rounded-full transition-all duration-300 cursor-pointer ${
+                  i === active
+                    ? "w-5 h-[3px] bg-[#F7F1E7]"
+                    : "w-2 h-[3px] bg-[#223A70]/40"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* ── Desktop: 3-card rotating carousel ──────────────────────────── */}
+        <div className="hidden md:flex w-full max-w-6xl mx-auto items-end justify-center gap-5 px-4">
+
+          {/* Left — prev slide */}
           <motion.div
             className="w-[19%] shrink-0"
             initial={{ opacity: 0, x: -12 }}
@@ -363,7 +428,7 @@ function Hero() {
             </div>
           </motion.div>
 
-          {/* Main centerpiece — dominant, clean, full-bleed */}
+          {/* Center — active slide, dominant */}
           <motion.div
             className="w-[59%] shrink-0"
             initial={{ opacity: 0, y: 20 }}
@@ -371,7 +436,6 @@ function Hero() {
             transition={{ duration: 0.65, delay: 0.08, ease }}
           >
             <div className="relative">
-              {/* Subtle deep-navy atmospheric halo — behind card only */}
               <div
                 className="absolute pointer-events-none"
                 style={{
@@ -381,10 +445,7 @@ function Hero() {
                 }}
                 aria-hidden
               />
-              <motion.div
-                whileHover={{ y: -4 }}
-                transition={{ duration: 0.3, ease }}
-              >
+              <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.3, ease }}>
                 <div
                   className="relative w-full rounded-2xl overflow-hidden"
                   style={{
@@ -412,7 +473,6 @@ function Hero() {
                     </motion.div>
                   </AnimatePresence>
                 </div>
-                {/* Thin coral accent — below the card, not inside it */}
                 <div
                   className="mx-7 mt-2 rounded-full"
                   style={{ height: 2, background: "rgba(244,122,90,0.60)" }}
@@ -421,7 +481,7 @@ function Hero() {
             </div>
           </motion.div>
 
-          {/* Right — next slide, floating on coral */}
+          {/* Right — next slide */}
           <motion.div
             className="w-[19%] shrink-0"
             initial={{ opacity: 0, x: 12 }}
@@ -461,14 +521,14 @@ function Hero() {
         </div>
       </div>
 
-      {/* Dot controls */}
-      <div className="relative z-10 flex items-center justify-center gap-1.5 mt-3 pb-1 shrink-0">
+      {/* Desktop dot controls */}
+      <div className="hidden md:flex relative z-10 items-center justify-center gap-1.5 mt-3 pb-1 shrink-0">
         {slides.map((_, i) => (
           <button
             key={i}
             onClick={() => setActive(i)}
             aria-label={`Slide ${i + 1}`}
-            className={`rounded-full transition-all duration-300 ${
+            className={`rounded-full transition-all duration-300 cursor-pointer ${
               i === active
                 ? "w-5 h-[2px] bg-[#F47A5A]"
                 : "w-2 h-[2px] bg-[#223A70]/30"
@@ -480,6 +540,7 @@ function Hero() {
     </section>
   );
 }
+
 
 // ─── 3 · Brand Identity ───────────────────────────────────────────────────────
 
@@ -707,42 +768,47 @@ function BrandStrategy() {
   ];
 
   return (
-    <section id="strategy" className="relative py-20 md:py-28 px-5 md:px-8 bg-[#223A70] overflow-hidden">
+    <section id="strategy" className="relative pt-14 pb-8 md:py-28 px-5 md:px-8 bg-[#223A70] overflow-hidden">
 
 
-      {/* Ghost mascot — very faint, right side */}
+      {/* Coral ghosted mascot — background watermark, both mobile & desktop */}
       <div
-        className="absolute inset-0 flex items-center justify-end pointer-events-none select-none"
+        className="absolute pointer-events-none select-none"
         aria-hidden
-      >
-        <div className="relative w-[560px] h-[560px]" style={{ opacity: 0.04, marginRight: "-80px" }}>
-          <Image
-            src="/cocos/cocos-mascot-cold-drink-navy.png"
-            alt=""
-            fill
-            className="object-contain"
-            style={{ filter: "brightness(0) invert(1)" }}
-            sizes="560px"
-          />
-        </div>
-      </div>
+        style={{
+          width: 520,
+          height: 520,
+          bottom: -40,
+          right: -80,
+          opacity: 0.09,
+          background: "#F47A5A",
+          WebkitMaskImage: "url('/cocos/cocos-mascot-cold-drink-navy.png')",
+          WebkitMaskSize: "contain",
+          WebkitMaskRepeat: "no-repeat",
+          WebkitMaskPosition: "center",
+          maskImage: "url('/cocos/cocos-mascot-cold-drink-navy.png')",
+          maskSize: "contain",
+          maskRepeat: "no-repeat",
+          maskPosition: "center",
+        }}
+      />
 
       <div className="relative max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-20 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 items-center">
 
           {/* Left — editorial copy block */}
           <Reveal>
-            <span className="block font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#F47A5A] mb-6">
+            <span className="block font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#F47A5A] mb-3 md:mb-6">
               Brand Strategy
             </span>
             <h2
-              className="font-display font-bold text-[#F7F1E7] leading-[1.08] tracking-[-0.015em] mb-6"
+              className="font-display font-bold text-[#F7F1E7] leading-[1.08] tracking-[-0.015em] mb-3 md:mb-6"
               style={{ fontSize: "clamp(34px,4vw,54px)" }}
             >
               Built for the daily stop.
             </h2>
             <p
-              className="font-sans text-[15px] text-[#F7F1E7] leading-[1.75] mb-10 max-w-md"
+              className="font-sans text-[15px] text-[#F7F1E7] leading-[1.75] mb-6 md:mb-10 max-w-md"
               style={{ opacity: 0.80 }}
             >
               Coco&rsquo;s is designed for the real coffee trailer experience — fast ordering, familiar faces, repeat visits, and brand moments people remember.
@@ -827,8 +893,95 @@ function BrandStrategy() {
 function BrandApplications() {
   const appItems = ["Trailer Graphics", "Cups", "Menus", "Loyalty", "Totes", "Matcha", "Launch"];
 
+  // Mobile carousel
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [mobileActive, setMobileActive] = useState(0);
+
+  const mobileCards: {
+    label: string; src: string; alt: string; copy: string;
+    fit: "cover" | "contain"; bg: string;
+  }[] = [
+    {
+      label: "Iced Matcha System",
+      src: "/cocos/cocos-matcha-cups-sky-mockup-primary-logo.png",
+      alt: "Coco's Coffee iced matcha cups — sky lifestyle mockup",
+      copy: "A sunny beverage application using the primary Coco’s logo, coral straw detail, and matcha-forward product photography.",
+      fit: "contain",
+      bg: "#F7F1E7",
+    },
+    {
+      label: "Bag + Cup System",
+      src: "/cocos/cocos-bag-cup-brand-mockup-navy-coral.png",
+      alt: "Coco's Coffee bag and cup brand mockup",
+      copy: "Takeaway packaging that carries the brand into every customer’s day.",
+      fit: "cover",
+      bg: "#EDE3D4",
+    },
+    {
+      label: "Cup System",
+      src: "/cocos/cocos-cup-mockup-coral-mascot-palm.png",
+      alt: "Coco's Coffee cup system — coral mascot palm",
+      copy: "A playful cup system using the mascot, palm motif, coral, navy, and cream.",
+      fit: "cover",
+      bg: "#F7F1E7",
+    },
+    {
+      label: "Menu Trifold",
+      src: "/cocos/cocos-menu-trifold-navy-coral.png",
+      alt: "Coco's Coffee menu trifold",
+      copy: "A compact menu system built for trailer ordering, speed, and brand clarity.",
+      fit: "contain",
+      bg: "#EDE3D4",
+    },
+    {
+      label: "Loyalty Card",
+      src: "/cocos/cocos-loyalty-card-flatlay-navy.png",
+      alt: "Coco's Coffee loyalty card system — flatlay",
+      copy: "A repeat-visit touchpoint designed to feel collectible and memorable.",
+      fit: "cover",
+      bg: "#F7F1E7",
+    },
+    {
+      label: "Sticker System",
+      src: "/cocos/cocos-sticker-pack-cafe-scene-navy-coral.png",
+      alt: "Coco's Coffee sticker pack — café scene",
+      copy: "A hand-drawn sticker world for packaging, social content, launch moments, and merch.",
+      fit: "contain",
+      bg: "#223A70",
+    },
+    {
+      label: "Tote Lifestyle",
+      src: "/cocos/cocos-tote-lifestyle-model-navy.png",
+      alt: "Coco's Coffee lifestyle tote — brand merch in daily use",
+      copy: "A merch application that turns Coco’s into something customers carry with them.",
+      fit: "contain",
+      bg: "#EDE3D4",
+    },
+    {
+      label: "Trailer Identity",
+      src: "/cocos/cocos-coffee-trailer-mockup-navy-coral.png",
+      alt: "Coco's Coffee trailer — navy & coral brand identity",
+      copy: "The flagship brand vehicle — navy and coral signage system ready for the road.",
+      fit: "cover",
+      bg: "#EDE3D4",
+    },
+  ];
+
+  const handleCarouselScroll = () => {
+    if (!carouselRef.current) return;
+    const { scrollLeft, scrollWidth } = carouselRef.current;
+    const idx = Math.round((scrollLeft / scrollWidth) * mobileCards.length);
+    setMobileActive(Math.min(Math.max(idx, 0), mobileCards.length - 1));
+  };
+
+  const scrollToCard = (i: number) => {
+    if (!carouselRef.current) return;
+    const { scrollWidth } = carouselRef.current;
+    carouselRef.current.scrollTo({ left: (scrollWidth / mobileCards.length) * i, behavior: "smooth" });
+  };
+
   return (
-    <section id="applications" className="relative py-20 md:py-24 px-5 md:px-8 bg-[#223A70] overflow-hidden">
+    <section id="applications" className="relative pt-10 pb-16 md:py-24 px-5 md:px-8 bg-[#223A70] overflow-hidden">
 
       {/* Decorative sticker accents — desktop only */}
       <StickerAccent
@@ -860,9 +1013,9 @@ function BrandApplications() {
 
       <div className="relative max-w-[1440px] mx-auto">
 
-        {/* Header */}
+        {/* Shared header */}
         <Reveal>
-          <div className="text-center mb-10 md:mb-12">
+          <div className="text-center mb-7 md:mb-12">
             <span className="block font-sans text-[10px] font-bold tracking-[0.26em] uppercase text-[#F47A5A] mb-3">
               Brand Applications
             </span>
@@ -882,196 +1035,221 @@ function BrandApplications() {
           </div>
         </Reveal>
 
-        {/* Row 1 — Equal 2-column: Trailer + Iced Matcha */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 mb-4 md:mb-5"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={stagger}
-        >
-          {/* Trailer Identity */}
-          <motion.div
-            variants={fadeUp}
-            className="rounded-2xl overflow-hidden cursor-default"
-            style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.32)" }}
-            whileHover={{ y: -5, boxShadow: "0 22px 56px rgba(0,0,0,0.42)" }}
-            transition={{ duration: 0.30, ease }}
-          >
-            <div className="relative h-[280px] md:h-[420px]" style={{ background: "#EDE3D4" }}>
-              <Image
-                src="/cocos/cocos-coffee-trailer-mockup-navy-coral.png"
-                alt="Coco's Coffee trailer — navy & coral brand identity"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            </div>
-            <div className="px-5 py-4 bg-[#F7F1E7] border-t-2 border-[#F47A5A]">
-              <span className="font-sans text-[10px] font-bold tracking-[0.22em] uppercase text-[#F47A5A] block mb-1">
-                Trailer Identity
-              </span>
-              <p className="font-sans text-[12px] text-[#223A70] leading-[1.5]">
-                The flagship brand vehicle — navy & coral signage system ready for the road.
-              </p>
-            </div>
-          </motion.div>
+        {/* ── Mobile: horizontal swipe carousel ─────────────────────────────── */}
+        <div className="md:hidden">
 
-          {/* Iced Matcha — equal card, full image */}
-          <motion.div
-            variants={fadeUp}
-            className="rounded-2xl overflow-hidden cursor-default"
-            style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.32)" }}
-            whileHover={{ y: -5, boxShadow: "0 22px 56px rgba(0,0,0,0.42)" }}
-            transition={{ duration: 0.30, ease }}
+          {/* Swipe hint */}
+          <p
+            className="font-sans text-[10px] font-semibold tracking-[0.18em] uppercase text-center text-[#F7F1E7] mb-3"
+            style={{ opacity: 0.45 }}
           >
-            <div className="relative h-[280px] md:h-[420px]" style={{ background: "#F7F1E7" }}>
-              <Image
-                src="/cocos/cocos-matcha-cups-sky-mockup-primary-logo.png"
-                alt="Coco's Coffee iced matcha cups — sky lifestyle mockup with primary logo"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            </div>
-            <div className="px-5 py-4 bg-[#F7F1E7] border-t-2 border-[#F47A5A]">
-              <span className="font-sans text-[10px] font-bold tracking-[0.22em] uppercase text-[#F47A5A] block mb-1">
-                Iced Matcha System
-              </span>
-              <p className="font-sans text-[12px] text-[#223A70] leading-[1.5]">
-                A sunny beverage application using the primary Coco&rsquo;s logo, coral straw detail, and matcha-forward photography.
-              </p>
-            </div>
-          </motion.div>
-        </motion.div>
+            Swipe to explore applications
+          </p>
 
-        {/* Row 2 — Three equal supporting cards */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 mb-4 md:mb-5"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
-          variants={stagger}
-        >
-          {(
-            [
-              {
-                label: "Bag + Cup System",
-                src: "/cocos/cocos-bag-cup-mockup-natural-coral.png",
-                alt: "Coco's Coffee bag and cup system",
-                bg: "#EDE3D4",
-                fit: "cover" as const,
-              },
-              {
-                label: "Cup System",
-                src: "/cocos/cocos-cup-mockup-coral-mascot-palm.png",
-                alt: "Coco's Coffee cup system — coral mascot palm",
-                bg: "#F7F1E7",
-                fit: "cover" as const,
-              },
-              {
-                label: "Menu Trifold",
-                src: "/cocos/cocos-menu-trifold-navy-coral.png",
-                alt: "Coco's Coffee menu trifold",
-                bg: "#EDE3D4",
-                fit: "contain" as const,
-              },
-            ]
-          ).map(({ label, src, alt, bg, fit }) => (
+          {/* Scroll container — negative margin bleeds through section px-5 for peek effect */}
+          <div
+            ref={carouselRef}
+            className="flex overflow-x-auto snap-x snap-mandatory scroll-pl-3 gap-3 pb-4"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none", marginLeft: "-20px", marginRight: "-20px", paddingLeft: "12px", paddingRight: "12px" }}
+            onScroll={handleCarouselScroll}
+          >
+            {mobileCards.map(({ label, src, alt, copy, fit, bg }) => (
+              <div
+                key={label}
+                className="snap-start flex-shrink-0 w-[86vw] rounded-3xl overflow-hidden cursor-default"
+                style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.38)" }}
+              >
+                <div className="relative h-[240px]" style={{ background: bg }}>
+                  <Image
+                    src={src}
+                    alt={alt}
+                    fill
+                    className={fit === "cover" ? "object-cover" : "object-contain"}
+                    sizes="86vw"
+                  />
+                </div>
+                <div className="px-4 py-3.5 bg-[#F7F1E7] border-t-2 border-[#F47A5A]">
+                  <span className="font-sans text-[9px] font-bold tracking-[0.22em] uppercase text-[#F47A5A] block mb-1">
+                    {label}
+                  </span>
+                  <p className="font-sans text-[11px] text-[#223A70] leading-[1.5]">
+                    {copy}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Dot indicators */}
+          <div className="flex items-center justify-center gap-1.5 mt-2">
+            {mobileCards.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => scrollToCard(i)}
+                aria-label={`Application ${i + 1}`}
+                className={`rounded-full transition-all duration-300 cursor-pointer ${
+                  i === mobileActive
+                    ? "w-5 h-[3px] bg-[#F47A5A]"
+                    : "w-2 h-[3px] bg-[#F7F1E7]/35"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* ── Desktop: editorial grid ───────────────────────────────────────── */}
+        <div className="hidden md:block">
+
+          {/* Row 1 — Equal 2-column: Trailer + Iced Matcha */}
+          <motion.div
+            className="grid grid-cols-2 gap-5 mb-5"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={stagger}
+          >
             <motion.div
-              key={label}
               variants={fadeUp}
               className="rounded-2xl overflow-hidden cursor-default"
               style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.32)" }}
               whileHover={{ y: -5, boxShadow: "0 22px 56px rgba(0,0,0,0.42)" }}
               transition={{ duration: 0.30, ease }}
             >
-              <div className="relative h-[260px]" style={{ background: bg }}>
+              <div className="relative h-[420px]" style={{ background: "#EDE3D4" }}>
                 <Image
-                  src={src}
-                  alt={alt}
+                  src="/cocos/cocos-coffee-trailer-mockup-navy-coral.png"
+                  alt="Coco's Coffee trailer — navy & coral brand identity"
                   fill
-                  className={fit === "cover" ? "object-cover" : "object-contain"}
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
+                  sizes="50vw"
                 />
               </div>
-              <div className="px-4 py-3 bg-[#F7F1E7] border-t-2 border-[#F47A5A]">
-                <span className="font-sans text-[9px] font-bold tracking-[0.22em] uppercase text-[#F47A5A]">
-                  {label}
+              <div className="px-5 py-4 bg-[#F7F1E7] border-t-2 border-[#F47A5A]">
+                <span className="font-sans text-[10px] font-bold tracking-[0.22em] uppercase text-[#F47A5A] block mb-1">
+                  Trailer Identity
                 </span>
+                <p className="font-sans text-[12px] text-[#223A70] leading-[1.5]">
+                  The flagship brand vehicle — navy & coral signage system ready for the road.
+                </p>
               </div>
             </motion.div>
-          ))}
-        </motion.div>
 
-        {/* Row 3 — Wide pair: Tote + Loyalty Card */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5 mb-8 md:mb-10"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
-          variants={stagger}
-        >
-          <motion.div
-            variants={fadeUp}
-            className="md:col-span-5 rounded-2xl overflow-hidden cursor-default"
-            style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.32)" }}
-            whileHover={{ y: -5, boxShadow: "0 22px 56px rgba(0,0,0,0.42)" }}
-            transition={{ duration: 0.30, ease }}
-          >
-            <div className="relative h-[260px]" style={{ background: "#EDE3D4" }}>
-              <Image
-                src="/cocos/cocos-tote-lifestyle-model-navy.png"
-                alt="Coco's Coffee lifestyle tote — brand merch in daily use"
-                fill
-                className="object-contain"
-                sizes="(max-width: 768px) 100vw, 42vw"
-              />
-            </div>
-            <div className="px-5 py-3.5 bg-[#F7F1E7] border-t-2 border-[#F47A5A]">
-              <span className="font-sans text-[10px] font-bold tracking-[0.22em] uppercase text-[#F47A5A]">
-                Tote Lifestyle
-              </span>
-            </div>
-          </motion.div>
-
-          <motion.div
-            variants={fadeUp}
-            className="md:col-span-7 rounded-2xl overflow-hidden cursor-default"
-            style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.32)" }}
-            whileHover={{ y: -5, boxShadow: "0 22px 56px rgba(0,0,0,0.42)" }}
-            transition={{ duration: 0.30, ease }}
-          >
-            <div className="relative h-[260px]" style={{ background: "#F7F1E7" }}>
-              <Image
-                src="/cocos/cocos-loyalty-card-flatlay-navy.png"
-                alt="Coco's Coffee loyalty card system — flatlay"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 58vw"
-              />
-            </div>
-            <div className="px-5 py-3.5 bg-[#F7F1E7] border-t-2 border-[#F47A5A]">
-              <span className="font-sans text-[10px] font-bold tracking-[0.22em] uppercase text-[#F47A5A]">
-                Loyalty Card System
-              </span>
-            </div>
-          </motion.div>
-        </motion.div>
-
-        {/* Application rail */}
-        <Reveal delay={0.1}>
-          <div className="pt-6 border-t border-[#F7F1E7]/10 text-center">
-            <p className="font-sans text-[10px] md:text-[11px] font-bold tracking-[0.28em] uppercase">
-              {appItems.map((item, i) => (
-                <span key={item}>
-                  {i > 0 && <span className="text-[#F47A5A] mx-2">&middot;</span>}
-                  <span className="text-[#F7F1E7]" style={{ opacity: 0.65 }}>{item}</span>
+            <motion.div
+              variants={fadeUp}
+              className="rounded-2xl overflow-hidden cursor-default"
+              style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.32)" }}
+              whileHover={{ y: -5, boxShadow: "0 22px 56px rgba(0,0,0,0.42)" }}
+              transition={{ duration: 0.30, ease }}
+            >
+              <div className="relative h-[420px]" style={{ background: "#F7F1E7" }}>
+                <Image
+                  src="/cocos/cocos-matcha-cups-sky-mockup-primary-logo.png"
+                  alt="Coco's Coffee iced matcha cups — sky lifestyle mockup with primary logo"
+                  fill
+                  className="object-cover"
+                  sizes="50vw"
+                />
+              </div>
+              <div className="px-5 py-4 bg-[#F7F1E7] border-t-2 border-[#F47A5A]">
+                <span className="font-sans text-[10px] font-bold tracking-[0.22em] uppercase text-[#F47A5A] block mb-1">
+                  Iced Matcha System
                 </span>
-              ))}
-            </p>
-          </div>
-        </Reveal>
+                <p className="font-sans text-[12px] text-[#223A70] leading-[1.5]">
+                  A sunny beverage application using the primary Coco&rsquo;s logo, coral straw detail, and matcha-forward photography.
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Row 2 — Three equal supporting cards */}
+          <motion.div
+            className="grid grid-cols-3 gap-5 mb-5"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={stagger}
+          >
+            {(
+              [
+                { label: "Bag + Cup System",  src: "/cocos/cocos-bag-cup-mockup-natural-coral.png",   alt: "Coco's Coffee bag and cup system",        bg: "#EDE3D4", fit: "cover"   as const },
+                { label: "Cup System",         src: "/cocos/cocos-cup-mockup-coral-mascot-palm.png",   alt: "Coco's Coffee cup system — coral mascot", bg: "#F7F1E7", fit: "cover"   as const },
+                { label: "Menu Trifold",       src: "/cocos/cocos-menu-trifold-navy-coral.png",        alt: "Coco's Coffee menu trifold",              bg: "#EDE3D4", fit: "contain" as const },
+              ]
+            ).map(({ label, src, alt, bg, fit }) => (
+              <motion.div
+                key={label}
+                variants={fadeUp}
+                className="rounded-2xl overflow-hidden cursor-default"
+                style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.32)" }}
+                whileHover={{ y: -5, boxShadow: "0 22px 56px rgba(0,0,0,0.42)" }}
+                transition={{ duration: 0.30, ease }}
+              >
+                <div className="relative h-[260px]" style={{ background: bg }}>
+                  <Image src={src} alt={alt} fill className={fit === "cover" ? "object-cover" : "object-contain"} sizes="33vw" />
+                </div>
+                <div className="px-4 py-3 bg-[#F7F1E7] border-t-2 border-[#F47A5A]">
+                  <span className="font-sans text-[9px] font-bold tracking-[0.22em] uppercase text-[#F47A5A]">
+                    {label}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Row 3 — Wide pair: Tote + Loyalty Card */}
+          <motion.div
+            className="grid grid-cols-12 gap-5 mb-8"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={stagger}
+          >
+            <motion.div
+              variants={fadeUp}
+              className="col-span-5 rounded-2xl overflow-hidden cursor-default"
+              style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.32)" }}
+              whileHover={{ y: -5, boxShadow: "0 22px 56px rgba(0,0,0,0.42)" }}
+              transition={{ duration: 0.30, ease }}
+            >
+              <div className="relative h-[260px]" style={{ background: "#EDE3D4" }}>
+                <Image src="/cocos/cocos-tote-lifestyle-model-navy.png" alt="Coco's Coffee lifestyle tote" fill className="object-contain" sizes="42vw" />
+              </div>
+              <div className="px-5 py-3.5 bg-[#F7F1E7] border-t-2 border-[#F47A5A]">
+                <span className="font-sans text-[10px] font-bold tracking-[0.22em] uppercase text-[#F47A5A]">Tote Lifestyle</span>
+              </div>
+            </motion.div>
+
+            <motion.div
+              variants={fadeUp}
+              className="col-span-7 rounded-2xl overflow-hidden cursor-default"
+              style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.32)" }}
+              whileHover={{ y: -5, boxShadow: "0 22px 56px rgba(0,0,0,0.42)" }}
+              transition={{ duration: 0.30, ease }}
+            >
+              <div className="relative h-[260px]" style={{ background: "#F7F1E7" }}>
+                <Image src="/cocos/cocos-loyalty-card-flatlay-navy.png" alt="Coco's Coffee loyalty card system" fill className="object-cover" sizes="58vw" />
+              </div>
+              <div className="px-5 py-3.5 bg-[#F7F1E7] border-t-2 border-[#F47A5A]">
+                <span className="font-sans text-[10px] font-bold tracking-[0.22em] uppercase text-[#F47A5A]">Loyalty Card System</span>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Application rail */}
+          <Reveal delay={0.1}>
+            <div className="pt-6 border-t border-[#F7F1E7]/10 text-center">
+              <p className="font-sans text-[11px] font-bold tracking-[0.28em] uppercase">
+                {appItems.map((item, i) => (
+                  <span key={item}>
+                    {i > 0 && <span className="text-[#F47A5A] mx-2">&middot;</span>}
+                    <span className="text-[#F7F1E7]" style={{ opacity: 0.65 }}>{item}</span>
+                  </span>
+                ))}
+              </p>
+            </div>
+          </Reveal>
+
+        </div>{/* end desktop grid */}
 
       </div>
     </section>
@@ -1119,7 +1297,7 @@ function LogoSystem() {
       <Reveal>
         <div className="px-5 md:px-8 relative z-10">
           <div className="max-w-7xl mx-auto mb-14 md:mb-18">
-            <span className="block font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#223A70] mb-4">
+            <span className="block font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#223A70] mb-3 md:mb-4">
               Logo System
             </span>
             <h2
@@ -1222,14 +1400,14 @@ function BrandSystemShowcase() {
     {
       num: "01", label: "PRIMARY DISPLAY",
       sample: "GOOD COFFEE",
-      sampleClass: "font-display", sampleSize: "clamp(48px,7.5vw,96px)", sampleWeight: 900,
+      sampleClass: "font-display", sampleSize: "clamp(32px,7.5vw,96px)", sampleWeight: 900,
       sampleTracking: "-0.02em", fontName: "PP Agrandir Grand Heavy",
       description: "Bold, expressive, and full of personality. Used for hero headlines, posters, launch graphics, and high-impact brand moments.",
     },
     {
       num: "02", label: "SECONDARY DISPLAY",
       sample: "GOOD DAYS",
-      sampleClass: "font-display", sampleSize: "clamp(46px,7.5vw,92px)", sampleWeight: 900,
+      sampleClass: "font-display", sampleSize: "clamp(30px,7.5vw,92px)", sampleWeight: 900,
       sampleTracking: "-0.02em", fontName: "PP Agrandir Grand Heavy",
       description: "Confident and warm. Used for supporting headlines, packaging statements, and brand-forward messaging.",
     },
@@ -1252,12 +1430,12 @@ function BrandSystemShowcase() {
   return (
     <>
       {/* Panel A — Live Typography Specimen — Deep Navy */}
-      <section id="typography" className="pt-3 pb-14 md:pt-5 md:pb-20 bg-[#223A70] overflow-hidden">
+      <section id="typography" className="pt-14 pb-20 md:pt-5 md:pb-20 bg-[#223A70] overflow-hidden">
         <div className="max-w-[1400px] mx-auto px-5 md:px-8">
 
           {/* ── Header: compact horizontal split ── */}
           <motion.div
-            className="flex flex-col md:flex-row md:items-end md:gap-16 lg:gap-20 mb-5 md:mb-7"
+            className="flex flex-col md:flex-row md:items-end md:gap-16 lg:gap-20 mb-4 md:mb-7"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "200px" }}
@@ -1309,7 +1487,7 @@ function BrandSystemShowcase() {
           >
             {typeRows.map((row, i) => (
               <motion.div key={row.num} variants={fadeUp}>
-                <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] items-center py-6 md:py-8 gap-5 md:gap-0">
+                <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] items-center py-4 md:py-8 gap-2 md:gap-0">
 
                   {/* Left — large type sample */}
                   <div className="md:pr-14">
@@ -1327,11 +1505,11 @@ function BrandSystemShowcase() {
                   </div>
 
                   {/* Right — detail block with vertical divider */}
-                  <div className="relative md:pl-14 mt-2 md:mt-0">
+                  <div className="relative md:pl-14 mt-1 md:mt-0">
                     {/* Vertical coral divider — desktop only */}
                     <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-[#F47A5A]/25 hidden md:block" />
 
-                    <div className="flex items-baseline gap-2.5 mb-3">
+                    <div className="flex items-baseline gap-2.5 mb-1.5 md:mb-3">
                       <span className="font-display font-bold text-[22px] text-[#F47A5A] leading-none">
                         {row.num}
                       </span>
@@ -1339,10 +1517,10 @@ function BrandSystemShowcase() {
                         {row.label}
                       </span>
                     </div>
-                    <p className="font-sans font-semibold text-[12.5px] text-[#F7F1E7] tracking-[0.02em] mb-3">
+                    <p className="font-sans font-semibold text-[12.5px] text-[#F7F1E7] tracking-[0.02em] mb-1 md:mb-3">
                       {row.fontName}
                     </p>
-                    <p className="font-sans text-[13px] text-[#F7F1E7] leading-[1.72]">
+                    <p className="font-sans text-[13px] text-[#F7F1E7] leading-[1.55] md:leading-[1.72]">
                       {row.description}
                     </p>
                   </div>
@@ -1412,7 +1590,7 @@ function BrandSystemShowcase() {
 
 function MascotSystem() {
   return (
-    <section id="mascot" className="relative py-14 md:py-20 px-5 md:px-8 bg-[#F7F1E7] overflow-hidden">
+    <section id="mascot" className="relative pt-14 pb-12 md:py-20 px-5 md:px-8 bg-[#F7F1E7] overflow-hidden">
 
       {/* Mascot sticker variants — floating accents */}
       <StickerAccent
@@ -1443,7 +1621,7 @@ function MascotSystem() {
       />
 
       <div className="relative max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-12 items-center">
 
           {/* ── Left: text ── */}
           <motion.div
@@ -1453,20 +1631,20 @@ function MascotSystem() {
             variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
           >
             <motion.span
-              className="block font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#F47A5A] mb-4"
+              className="block font-sans text-[11px] font-bold tracking-[0.22em] uppercase text-[#F47A5A] mb-3 md:mb-4"
               variants={fadeUp}
             >
               Mascot System
             </motion.span>
             <motion.h2
-              className="font-display font-bold text-[#223A70] leading-[1.08] tracking-[-0.015em] mb-5"
+              className="font-display font-bold text-[#223A70] leading-[1.08] tracking-[-0.015em] mb-3 md:mb-5"
               style={{ fontSize: "clamp(34px,4vw,52px)" }}
               variants={fadeUp}
             >
               Coco is the memory hook.
             </motion.h2>
             <motion.p
-              className="font-sans text-[15px] md:text-[16px] text-[#223A70] leading-[1.8] mb-10 max-w-md"
+              className="font-sans text-[15px] md:text-[16px] text-[#223A70] leading-[1.6] md:leading-[1.8] mb-6 md:mb-10 max-w-md"
               style={{ opacity: 0.82 }}
               variants={fadeUp}
             >
@@ -1476,7 +1654,7 @@ function MascotSystem() {
 
             {/* Usage strip */}
             <motion.div
-              className="flex flex-wrap items-baseline gap-x-3 gap-y-2 pt-6 border-t border-[#223A70]/15"
+              className="flex flex-wrap items-baseline gap-x-3 gap-y-2 pt-4 md:pt-6 border-t border-[#223A70]/15"
               variants={fadeUp}
             >
               <span className="font-sans text-[10px] font-bold tracking-[0.26em] uppercase text-[#F47A5A] shrink-0">
@@ -1491,7 +1669,7 @@ function MascotSystem() {
           {/* ── Right: mascot card ── */}
           <Reveal delay={0.14}>
             <motion.div
-              className="relative rounded-3xl bg-[#EDE3D4] overflow-hidden h-[480px]"
+              className="relative rounded-3xl bg-[#EDE3D4] overflow-hidden h-[340px] md:h-[480px]"
               style={{
                 border: "2px solid rgba(244,122,90,0.35)",
                 boxShadow:
@@ -1501,7 +1679,7 @@ function MascotSystem() {
               transition={{ duration: 0.4, ease }}
             >
               {/* Mascot image — padded above the coral label strip */}
-              <div className="absolute inset-0 p-8 pb-[68px]">
+              <div className="absolute inset-0 p-5 pb-[68px] md:p-8 md:pb-[68px]">
                 <div className="relative w-full h-full">
                   <Image
                     src="/cocos/cocos-mascot-cold-drink-navy.png"
@@ -1544,7 +1722,7 @@ function StickerSystem() {
   const applications = ["Cups", "Menus", "Stickers", "Loyalty", "Social", "Launch"];
 
   return (
-    <section id="stickers" className="relative py-20 md:py-28 px-5 md:px-8 bg-[#223A70] overflow-hidden">
+    <section id="stickers" className="relative pt-12 pb-20 md:py-28 px-5 md:px-8 bg-[#223A70] overflow-hidden">
 
       {/* Coral glow — lower-right depth */}
       <div
@@ -1575,7 +1753,7 @@ function StickerSystem() {
       />
 
       <div className="relative max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-[5fr_7fr] gap-12 lg:gap-20 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[5fr_7fr] gap-8 lg:gap-20 items-center">
 
           {/* Left: text panel */}
           <motion.div
@@ -1589,7 +1767,7 @@ function StickerSystem() {
             </motion.div>
 
             <motion.h2
-              className="font-display font-bold text-[#F7F1E7] leading-[1.08] tracking-[-0.015em] mt-5 mb-6"
+              className="font-display font-bold text-[#F7F1E7] leading-[1.08] tracking-[-0.015em] mt-4 mb-4 md:mt-5 md:mb-6"
               style={{ fontSize: "clamp(34px,3.8vw,52px)" }}
               variants={fadeUp}
             >
@@ -1597,7 +1775,7 @@ function StickerSystem() {
             </motion.h2>
 
             <motion.p
-              className="font-sans text-[#F7F1E7] text-[15px] md:text-[16px] leading-[1.82] mb-8 max-w-lg"
+              className="font-sans text-[#F7F1E7] text-[15px] md:text-[16px] leading-[1.65] md:leading-[1.82] mb-5 md:mb-8 max-w-lg"
               style={{ opacity: 0.85 }}
               variants={fadeUp}
             >
@@ -1607,11 +1785,25 @@ function StickerSystem() {
             </motion.p>
 
             <motion.div
-              className="w-14 h-[2px] bg-[#F47A5A] rounded-full mb-8"
+              className="w-14 h-[2px] bg-[#F47A5A] rounded-full mb-5 md:mb-8"
               variants={fadeUp}
             />
 
-            <motion.div className="flex flex-wrap gap-2.5" variants={fadeUp}>
+            {/* Mobile: editorial application line */}
+            <motion.div
+              className="md:hidden flex flex-wrap gap-x-3 gap-y-1.5"
+              style={{ opacity: 0.88 }}
+              variants={fadeUp}
+            >
+              {applications.map((app, i) => (
+                <span key={app} className="font-sans text-[11px] font-bold tracking-[0.14em] uppercase text-[#F7F1E7]">
+                  {app}{i < applications.length - 1 && <span className="text-[#F47A5A] ml-1">·</span>}
+                </span>
+              ))}
+            </motion.div>
+
+            {/* Desktop: pill tags */}
+            <motion.div className="hidden md:flex flex-wrap gap-2.5" variants={fadeUp}>
               {applications.map((app) => (
                 <motion.span
                   key={app}
@@ -1671,7 +1863,7 @@ function StickerSystem() {
                     src="/cocos/cocos-sticker-pack-cafe-scene-navy-coral.png"
                     alt="Coco's Coffee sticker pack — hand-drawn cafe scene with brand stickers"
                     fill
-                    className="object-contain p-6 md:p-8"
+                    className="object-contain p-3 md:p-8"
                     sizes="(max-width: 1024px) 100vw, 55vw"
                   />
                 </div>
@@ -1690,15 +1882,15 @@ function StickerSystem() {
 
 function ColorPalette() {
   const chips = [
-    { name: "Coconut Cream",  hex: "#F7F1E7", cream: true  },
-    { name: "Espresso Brown", hex: "#4A2E24", cream: false },
-    { name: "Coral Foam",     hex: "#F47A5A", cream: false },
-    { name: "Deep Navy",      hex: "#223A70", cream: false },
-    { name: "Tampa Sun",      hex: "#FFC94A", cream: false },
+    { name: "Coconut Cream",  hex: "#F7F1E7", cream: true,  short: "Coconut"  },
+    { name: "Espresso Brown", hex: "#4A2E24", cream: false, short: "Espresso" },
+    { name: "Coral Foam",     hex: "#F47A5A", cream: false, short: "Coral"    },
+    { name: "Deep Navy",      hex: "#223A70", cream: false, short: "Navy"     },
+    { name: "Tampa Sun",      hex: "#FFC94A", cream: false, short: "Sun"      },
   ];
 
   return (
-    <section className="relative py-20 md:py-28 px-5 md:px-8 bg-[#F47A5A] overflow-hidden">
+    <section className="relative pt-14 pb-20 md:py-28 px-5 md:px-8 bg-[#F47A5A] overflow-hidden">
 
       {/* Moka pot sticker — upper-right accent */}
       <StickerAccent
@@ -1728,7 +1920,7 @@ function ColorPalette() {
       />
 
       <div className="relative max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-[5fr_6fr] gap-12 lg:gap-20 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[5fr_6fr] gap-6 lg:gap-20 items-center">
 
           {/* ── Left: text + chips ── */}
           <motion.div
@@ -1745,7 +1937,7 @@ function ColorPalette() {
             </motion.span>
 
             <motion.h2
-              className="font-display font-bold text-[#223A70] leading-[1.08] tracking-[-0.015em] mb-4"
+              className="font-display font-bold text-[#223A70] leading-[1.08] tracking-[-0.015em] mb-3 md:mb-4"
               style={{ fontSize: "clamp(34px,4.5vw,58px)" }}
               variants={fadeUp}
             >
@@ -1754,14 +1946,14 @@ function ColorPalette() {
 
             {/* Pull quote */}
             <motion.p
-              className="font-display italic text-[#223A70] text-[17px] md:text-[18px] leading-[1.55] mb-5"
+              className="font-display italic text-[#223A70] text-[17px] md:text-[18px] leading-[1.55] mb-3 md:mb-5"
               variants={fadeUp}
             >
               Color built for sunshine, signage, and repeat recognition.
             </motion.p>
 
             <motion.p
-              className="font-sans text-[15px] text-[#223A70] leading-[1.75] max-w-md mb-7"
+              className="font-sans text-[15px] text-[#223A70] leading-[1.6] md:leading-[1.75] max-w-md mb-4 md:mb-7"
               variants={fadeUp}
             >
               A warm, coastal palette built for packaging, signage, and everyday
@@ -1769,37 +1961,61 @@ function ColorPalette() {
             </motion.p>
 
             <motion.div
-              className="w-10 h-[2px] bg-[#223A70] rounded-full mb-8"
+              className="w-10 h-[2px] bg-[#223A70] rounded-full mb-4 md:mb-8"
               variants={fadeUp}
             />
 
-            {/* Color chips */}
-            {chips.map((chip) => (
-              <motion.div
-                key={chip.name}
-                className="flex items-center gap-3 mb-2.5 cursor-default"
-                variants={fadeUp}
-                whileHover={{ x: 5 }}
-                transition={{ x: { duration: 0.2, ease }, y: { duration: 0.7, ease } }}
-              >
-                <div
-                  className="w-9 h-7 rounded-[6px] shrink-0"
-                  style={{
-                    background: chip.hex,
-                    boxShadow: "0 2px 6px rgba(0,0,0,0.13)",
-                    border: chip.cream ? "1.5px solid rgba(34,58,112,0.20)" : "none",
-                  }}
-                />
-                <div className="flex items-baseline gap-2">
-                  <span className="font-sans font-bold text-[12.5px] text-[#223A70]">
-                    {chip.name}
+            {/* Mobile: compact 5-column swatch grid */}
+            <motion.div className="grid grid-cols-5 gap-2 md:hidden" variants={fadeUp}>
+              {chips.map((chip) => (
+                <div key={chip.name} className="flex flex-col items-center">
+                  <div
+                    className="w-full aspect-[2/3] rounded-xl mb-1"
+                    style={{
+                      background: chip.hex,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+                      border: chip.cream ? "1.5px solid rgba(34,58,112,0.22)" : "none",
+                    }}
+                  />
+                  <span className="font-sans font-bold text-[8px] text-[#223A70] text-center leading-tight">
+                    {chip.short}
                   </span>
-                  <span className="font-mono text-[10.5px] text-[#223A70]">
+                  <span className="font-mono text-[7px] text-[#223A70] opacity-60 text-center">
                     {chip.hex}
                   </span>
                 </div>
-              </motion.div>
-            ))}
+              ))}
+            </motion.div>
+
+            {/* Desktop: original chip list */}
+            <div className="hidden md:block">
+              {chips.map((chip) => (
+                <motion.div
+                  key={chip.name}
+                  className="flex items-center gap-3 mb-2.5 cursor-default"
+                  variants={fadeUp}
+                  whileHover={{ x: 5 }}
+                  transition={{ x: { duration: 0.2, ease }, y: { duration: 0.7, ease } }}
+                >
+                  <div
+                    className="w-9 h-7 rounded-[6px] shrink-0"
+                    style={{
+                      background: chip.hex,
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.13)",
+                      border: chip.cream ? "1.5px solid rgba(34,58,112,0.20)" : "none",
+                    }}
+                  />
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-sans font-bold text-[12.5px] text-[#223A70]">
+                      {chip.name}
+                    </span>
+                    <span className="font-mono text-[10.5px] text-[#223A70]">
+                      {chip.hex}
+                    </span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
 
           {/* ── Right: palette image ── */}

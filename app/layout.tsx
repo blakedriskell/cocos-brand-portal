@@ -23,9 +23,19 @@ const nunitoSans = Nunito_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Coco's Coffee — Brand Portal",
-  description:
-    "Premium brand direction for Coco's Coffee, a Tampa drive-thru coffee shop.",
+  title: "Coco's Coffee",
+  description: "Brand identity system for a warm, playful coffee trailer in Tampa, FL.",
+  openGraph: {
+    title: "Coco's Coffee",
+    description: "Brand identity system for a warm, playful coffee trailer in Tampa, FL.",
+    images: [{ url: "/cocos/cocos-og-share-card-navy-coral.png" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Coco's Coffee",
+    description: "Brand identity system for a warm, playful coffee trailer in Tampa, FL.",
+    images: ["/cocos/cocos-og-share-card-navy-coral.png"],
+  },
 };
 
 export default function RootLayout({
