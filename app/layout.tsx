@@ -23,18 +23,21 @@ const nunitoSans = Nunito_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://cocos-brand-portal.vercel.app"),
   title: "Coco's Coffee",
   description: "Brand identity system for a warm, playful coffee trailer in Tampa, FL.",
   openGraph: {
     title: "Coco's Coffee",
     description: "Brand identity system for a warm, playful coffee trailer in Tampa, FL.",
-    images: [{ url: "/cocos/cocos-og-share-card-navy-coral.png" }],
+    url: "https://cocos-brand-portal.vercel.app",
+    siteName: "Coco's Coffee",
+    images: [{ url: "/cocos/cocos-og-share-card-tampa-navy-coral.png" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Coco's Coffee",
     description: "Brand identity system for a warm, playful coffee trailer in Tampa, FL.",
-    images: ["/cocos/cocos-og-share-card-navy-coral.png"],
+    images: ["/cocos/cocos-og-share-card-tampa-navy-coral.png"],
   },
 };
 
